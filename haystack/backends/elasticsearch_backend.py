@@ -103,6 +103,7 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
         self.log = logging.getLogger('haystack')
         self.setup_complete = False
         self.existing_mapping = {}
+        self.search_type = connection_options.get('SEARCH_TYPE', None)
 
     def setup(self):
         """
@@ -492,9 +493,15 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
             search_kwargs['size'] = end_offset - start_offset
 
         try:
-            raw_results = self.conn.search(search_kwargs,
-                                           index=self.index_name,
-                                           doc_type='modelresult')
+            if self.search_type:
+                raw_results = self.conn.search(search_kwargs,
+                                               index=self.index_name,
+                                               doc_type='modelresult',
+                                               search_type=self.search_type)
+            else:
+                raw_results = self.conn.search(search_kwargs,
+                                               index=self.index_name,
+                                               doc_type='modelresult')                
         except (requests.RequestException, pyelasticsearch.ElasticHttpError), e:
             if not self.silently_fail:
                 raise
