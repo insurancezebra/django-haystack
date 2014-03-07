@@ -284,8 +284,10 @@ class Command(LabelCommand):
                 if self.workers > 0:
                     ghetto_queue = []
 
-                for start in range(0, total, batch_size):
-                    upper_bound = start + batch_size
+                for upper_bound in range(total, 0, -batch_size):
+                    start = upper_bound - batch_size
+                    if start < 0:
+                        start = 0
 
                     if self.workers == 0:
                         do_remove(backend, index, model, pks_seen, start, upper_bound, self.verbosity)
