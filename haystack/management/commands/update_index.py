@@ -279,11 +279,15 @@ class Command(LabelCommand):
                     total = len(pks_seen)
                 else:
                     pks_seen = set(smart_bytes(pk) for pk in qs.values_list('pk', flat=True))
+                    # get the total number of indexes in the search index there might be difference in
+                    # the no of objects in query set and the searchindex.
                     total = len(SearchQuerySet(using=backend.connection_alias).models(model))
 
                 if self.workers > 0:
                     ghetto_queue = []
 
+                # start deleting objects from back of the search-indexes so that it doesn't miss the objects
+                # when we slice in subsequent runs.
                 for upper_bound in range(total, 0, -batch_size):
                     start = upper_bound - batch_size
                     if start < 0:
