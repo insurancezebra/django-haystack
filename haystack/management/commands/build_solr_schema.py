@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 from optparse import make_option
 import sys
 
@@ -5,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand
 from django.template import loader, Context
 from haystack.backends.solr_backend import SolrSearchBackend
-from haystack.constants import ID, DJANGO_CT, DJANGO_ID, DEFAULT_OPERATOR, DEFAULT_ALIAS
+from haystack import constants
 
 
 class Command(BaseCommand):
@@ -13,7 +15,7 @@ class Command(BaseCommand):
     base_options = (
         make_option("-f", "--filename", action="store", type="string", dest="filename",
                     help='If provided, directs output to a file instead of stdout.'),
-        make_option("-u", "--using", action="store", type="string", dest="using", default=DEFAULT_ALIAS,
+        make_option("-u", "--using", action="store", type="string", dest="using", default=constants.DEFAULT_ALIAS,
                     help='If provided, chooses a connection to work with.'),
     )
     option_list = BaseCommand.option_list + base_options
@@ -39,10 +41,10 @@ class Command(BaseCommand):
         return Context({
             'content_field_name': content_field_name,
             'fields': fields,
-            'default_operator': DEFAULT_OPERATOR,
-            'ID': ID,
-            'DJANGO_CT': DJANGO_CT,
-            'DJANGO_ID': DJANGO_ID,
+            'default_operator': constants.DEFAULT_OPERATOR,
+            'ID': constants.ID,
+            'DJANGO_CT': constants.DJANGO_CT,
+            'DJANGO_ID': constants.DJANGO_ID,
         })
 
     def build_template(self, using):
@@ -57,7 +59,7 @@ class Command(BaseCommand):
         sys.stderr.write("Save the following output to 'schema.xml' and place it in your Solr configuration directory.\n")
         sys.stderr.write("--------------------------------------------------------------------------------------------\n")
         sys.stderr.write("\n")
-        print schema_xml
+        print(schema_xml)
 
     def write_file(self, filename, schema_xml):
         schema_file = open(filename, 'w')

@@ -1,7 +1,13 @@
+# encoding: utf-8
+from __future__ import unicode_literals
+
 import re
-from django.utils import datetime_safe
-from django.template import loader, Context
+
+from django.template import Context, loader
+from django.utils import datetime_safe, six
+
 from haystack.exceptions import SearchFieldError
+from haystack.utils import get_model_ct_tuple
 
 
 class NOT_PROVIDED:
@@ -124,7 +130,8 @@ class SearchField(object):
             if not isinstance(template_names, (list, tuple)):
                 template_names = [template_names]
         else:
-            template_names = ['search/indexes/%s/%s_%s.txt' % (obj._meta.app_label, obj._meta.module_name, self.instance_name)]
+            app_label, model_name = get_model_ct_tuple(obj)
+            template_names = ['search/indexes/%s/%s_%s.txt' % (app_label, model_name, self.instance_name)]
 
         t = loader.select_template(template_names)
         return t.render(Context({'object': obj}))
@@ -155,7 +162,7 @@ class CharField(SearchField):
         if value is None:
             return None
 
-        return unicode(value)
+        return six.text_type(value)
 
 
 class LocationField(SearchField):
@@ -183,7 +190,7 @@ class LocationField(SearchField):
             value = ensure_point(value)
             return value
 
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             lat, lng = value.split(',')
         elif isinstance(value, (list, tuple)):
             # GeoJSON-alike
@@ -264,7 +271,7 @@ class DecimalField(SearchField):
         if value is None:
             return None
 
-        return unicode(value)
+        return six.text_type(value)
 
 
 class BooleanField(SearchField):
@@ -299,7 +306,7 @@ class DateField(SearchField):
         if value is None:
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             match = DATETIME_REGEX.search(value)
 
             if match:
@@ -324,7 +331,7 @@ class DateTimeField(SearchField):
         if value is None:
             return None
 
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             match = DATETIME_REGEX.search(value)
 
             if match:
