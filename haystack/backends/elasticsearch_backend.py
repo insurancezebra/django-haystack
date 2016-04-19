@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import datetime
@@ -111,7 +112,6 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
         self.log = logging.getLogger('haystack')
         self.setup_complete = False
         self.existing_mapping = {}
-        self.search_type = connection_options.get('SEARCH_TYPE', None)
 
     def setup(self):
         """
@@ -496,15 +496,9 @@ class ElasticsearchSearchBackend(BaseSearchBackend):
             search_kwargs['size'] = end_offset - start_offset
 
         try:
-            if self.search_type:
-                raw_results = self.conn.search(search_kwargs,
-                                               index=self.index_name,
-                                               doc_type='modelresult',
-                                               search_type=self.search_type)
-            else:
-                raw_results = self.conn.search(search_kwargs,
-                                               index=self.index_name,
-                                               doc_type='modelresult')
+            raw_results = self.conn.search(body=search_kwargs,
+                                           index=self.index_name,
+                                           doc_type='modelresult')
         except elasticsearch.TransportError as e:
             if not self.silently_fail:
                 raise
