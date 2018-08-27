@@ -26,8 +26,8 @@ tests_require = [
 ]
 
 setup(
-    name='django-haystack',
-    version='2.3.2',
+    name='thezebra-django-haystack',
+    version='2.3.2.2',
     description='Pluggable search for Django.',
     author='Daniel Lindsley',
     author_email='daniel@toastdriven.com',
